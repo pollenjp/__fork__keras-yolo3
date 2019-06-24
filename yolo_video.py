@@ -3,6 +3,8 @@ import sys
 import re
 import pathlib
 import argparse
+import numpy as np
+import cv2
 from yolo import YOLO, detect_video
 from PIL import Image
 
@@ -25,6 +27,15 @@ def detect_img(yolo, images_dire):
             print('Open Error! Try again!')
             continue
         else:
+            image = np.array(image)
+            assert len(image.shape) == 3 or len(image.shape) == 2, "Incorrect Image Format : {}".format(image.shape)
+            if len(image.shape) == 3:
+                pass
+            elif len(image.shape) == 2:
+                # グレイスケールはRGB全部同じ値にすれば良いのでBGRでもRGBでも同じ。
+                image = cv2.cvtColor(src=image, code=cv2.COLOR_GRAY2BGR)
+                image = Image.fromarray(np.uint8(image))
+
             r_image = yolo.detect_image(image)
             #r_image.show()
             save_file_Path = pathlib.Path("./out") / filepath[len(images_dirpath)+1:]
